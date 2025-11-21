@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-3">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Tracker - Jurnal, Uang, Hidup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ------------------------------------------- */
+        /* CSS ALA EARTH TONE MINIMALIS */
+        /* ------------------------------------------- */
+        /* Global Reset for Responsiveness */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Palet Warna Earth Tone */
+        :root {
+            --bg-light: #fcfcf0;    /* Krem Paling Terang */
+            --bg-card: #ffffff;     /* Putih untuk Konten */
+            --text-dark: #3a322f;   /* Cokelat Gelap (Teks Utama) */
+            --border-soft: #e0dcd5; /* Garis Pemisah (Cokelat Muda) */
+            --accent-green: #6c8a74; /* Hijau Sage (Aksen Positif/Tabungan) */
+            --accent-brown: #a07d6c; /* Terakota / Cokelat Merah (Aksen Negatif/Pengeluaran) */
+            --accent-blue: #93b5c6;  /* Biru Laut (Aksen Jurnal/Interaktif) */
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .instagram-container {
+            width: 100%; /* Memastikan lebar 100% pada semua ukuran */
+            max-width: 450px; 
+            min-height: 100vh;
+            background-color: var(--bg-card);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.08); 
+            position: relative;
+        }
+
+        /* Header (Atas) */
+        .profile-header {
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-soft);
+            padding: 12px 15px;
+            z-index: 10;
+        }
+
+        .profile-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .username {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--text-dark);
+        }
+
+        .add-button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--accent-blue);
+            cursor: pointer;
+            padding: 0 10px;
+        }
+
+        /* Navigasi (Tabs/Stories) */
+        .navigation-bar {
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid var(--border-soft);
+            position: sticky;
+            top: 50px; 
+            background-color: var(--bg-card);
+            z-index: 9;
+        }
+
+        .nav-item {
+            flex-grow: 1;
+            padding: 12px 0;
+            background: none;
+            border: none;
+            color: #999;
+            font-weight: 600;
+            font-size: 0.75em; /* Sedikit dikecilkan untuk 5 tab agar lebih stabil */
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-item.active {
+            color: var(--text-dark);
+            border-bottom-color: var(--accent-brown); /* Aksen Cokelat/Terakota */
+        }
+
+        /* Konten Utama (Feed) */
+        .content-feed {
+            padding-bottom: 80px; 
+            background-color: var(--bg-light); /* Latar belakang konten krem */
+        }
+
+        .view {
+            padding: 10px 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .view-title {
+            padding: 0 15px;
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+
+        /* Post Jurnal (Meniru Postingan IG) */
+        .journal-post {
+            border: 1px solid var(--border-soft);
+            border-radius: 8px; /* Lebih lembut */
+            margin: 0 15px 20px 15px;
+            background-color: var(--bg-card);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .post-date {
+            font-size: 0.8em;
+            color: #999;
+            margin-left: auto;
+        }
+
+        .post-content {
+            padding: 15px;
+        }
+
+        .post-caption {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+            word-wrap: break-word; /* Memastikan teks panjang pecah baris */
+        }
+
+        .post-body {
+            font-size: 0.95em;
+            color: #555;
+            white-space: pre-wrap; 
+        }
+        
+        /* Kartu Ringkasan (Uang) */
+        .summary-card {
+            background-color: var(--bg-card);
+            padding: 18px;
+            margin: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: var(--text-dark);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: calc(100% - 30px); /* Memastikan lebar penuh - margin */
+            cursor: pointer; /* Menambahkan kursor pointer untuk status notifikasi */
+        }
+
+        /* Transaksi (Pemasukan/Pengeluaran) */
+        .transaction-list {
+            list-style: none;
+            padding: 0 15px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-details {
+            display: flex;
+            flex-direction: column;
+            /* Memastikan detail tidak terlalu lebar, meninggalkan ruang untuk jumlah */
+            max-width: 65%; 
+        }
+
+        .transaction-description {
+            font-weight: 500;
+            color: var(--text-dark);
+            word-wrap: break-word; /* Penting untuk responsif */
+        }
+
+        .transaction-date-tiny {
+            font-size: 0.75em;
+            color: #999;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1.1em;
+            white-space: nowrap; /* Mencegah jumlah uang pecah baris */
+        }
+
+        .income-color {
+            color: var(--accent-green); /* Hijau Sage */
+        }
+
+        .expense-color {
+            color: var(--accent-brown); /* Terakota */
+        }
+
+        .delete-btn, .edit-btn { /* Style untuk tombol Delete dan Edit */
+            background: none;
+            border: none;
+            color: var(--border-soft);
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-left: 10px;
+        }
+        .delete-btn:hover, .edit-btn:hover {
+            color: var(--accent-brown);
+        }
+        .action-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Rekap & Tabungan Specific Styling */
+        .recap-group, .goal-card {
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
+            margin: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px; 
+            background-color: var(--bg-card);
+            width: calc(100% - 30px); /* Memastikan lebar penuh - margin */
+        }
+
+        .recap-header {
+            background-color: #f7f7f5; /* Krem sedikit lebih gelap */
+            padding: 14px 15px;
+            font-weight: 700;
+            font-size: 1.05em;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-soft);
+        }
+        
+        .recap-header.weekly {
+            font-size: 0.95em;
+            background-color: #fcfcf0;
+            padding: 12px 15px;
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .recap-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-bottom: 1px solid #f9f9f9;
+            font-size: 0.95em;
+        }
+
+        .recap-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .recap-balance {
+            font-weight: 700;
+            background-color: #e8f5e9; /* Hijau super muda */
+            border-top: 1px solid var(--border-soft);
+        }
+        .recap-balance.negative {
+            background-color: #fae0e0; /* Merah super muda */
+        }
+
+        /* Tabungan Goal Card Styling */
+        .goal-card-content {
+            padding: 15px;
+        }
+        .goal-title {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-dark);
+        }
+        .goal-target {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .progress-bar {
+            background-color: var(--border-soft);
+            height: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-green); /* Hijau Sage untuk progres */
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #555;
+        }
+        .goal-delete-btn, .goal-edit-btn { /* Style untuk tombol Delete dan Edit Tabungan */
+            background: none;
+            border: none;
+            color: var(--border-soft);
+            cursor: pointer;
+            font-size: 1em;
+            margin-left: 10px;
+        }
+        .goal-delete-btn:hover, .goal-edit-btn:hover {
+            color: var(--accent-brown);
+        }
+        .goal-actions {
+            display: flex;
+            align-items: center;
+        }
+
+
+        /* ------------------------------------------- */
+        /* MODAL */
+        /* ------------------------------------------- */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--text-dark);
+        }
+
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: var(--text-dark);
+        }
+
+        .modal-content textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            flex-grow: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .save-btn {
+            background-color: var(--accent-blue); 
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: var(--border-soft);
+            color: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="instagram-container">
+        <!-- 1. HEADER (Profil) -->
+        <header class="profile-header">
+            <div class="profile-info">
+                <span class="username">Jurnal Kehidupan zamzam</span>
+                <div style="display: flex; align-items: center;">
+                    <!-- Tombol Notifikasi: Klik untuk meminta izin -->
+                    <button class="add-button" title="Minta Izin Notifikasi" onclick="requestNotificationPermission()">🔔</button>
+                    <!-- Tombol Tambah Entri -->
+                    <button class="add-button" title="Tambah Entri Baru" onclick="showModal()">+</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 2. NAVIGATION BAR (Stories/Tabs) -->
+        <nav class="navigation-bar">
+            <button class="nav-item active" data-view="jurnal">📝 Jurnal</button>
+            <button class="nav-item" data-view="pemasukan">💰 Pemasukan</button>
+            <button class="nav-item" data-view="pengeluaran">💸 Pengeluaran</button>
+            <button class="nav-item" data-view="tabungan">🏦 Tabungan</button> <!-- NEW TAB -->
+            <button class="nav-item" data-view="rekap">📊 Rekap</button>
+        </nav>
+
+        <!-- 3. CONTENT AREA (Feed) -->
+        <main class="content-feed">
+            
+            <!-- VIEW: Jurnal Hidup -->
+            <div id="jurnal-view" class="view active">
+                <!-- NEW: Status Notifikasi -->
+                <div id="notification-status" class="summary-card" onclick="requestNotificationPermission()">
+                    <span class="font-bold"> Status Notifikasi: Klik untuk Mengizinkan!</span>
+                </div>
+                <div id="jurnal-list" class="post-list">
+                    <p id="jurnal-empty-message" class="empty-message hidden">Belum ada entri. Tekan '+' untuk menambahkan!</p>
+                </div>
+            </div>
+
+            <!-- VIEW: Pemasukan -->
+            <div id="pemasukan-view" class="view hidden">
+                <div id="income-summary" class="summary-card">
+                    Total Pemasukan: <span id="total-income" class="income-color">Rp 0</span>
+                </div>
+                <ul id="income-list" class="transaction-list">
+                    <p id="income-empty-message" class="empty-message hidden">Belum ada pemasukan. Tekan '+' untuk menambahkan!</p>
+                </ul>
+            </div>
+
+            <!-- VIEW: Pengeluaran -->
+            <div id="pengeluaran-view" class="view hidden">
+                <div id="expense-summary" class="summary-card">
+                    Total Pengeluaran: <span id="total-expense" class="expense-color">Rp 0</span>
+                </div>
+                <ul id="expense-list" class="transaction-list">
+                    <p id="expense-empty-message" class="empty-message hidden">Belum ada pengeluaran. Tekan '+' untuk menambahkan!</p>
+                </ul>
+            </div>
+            
+            <!-- NEW VIEW: Tabungan -->
+            <div id="tabungan-view" class="view hidden">
+                <div class="summary-card">
+                    <button class="save-btn w-full" onclick="showSavingModal()">+ Tambah Tujuan Tabungan Baru</button>
+                </div>
+                <div id="goals-list">
+                    <p id="goals-empty-message" class="empty-message hidden">Belum ada tujuan tabungan. Mari buat target baru!</p>
+                </div>
+            </div>
+
+
+            <!-- VIEW: Rekap Bulanan dan Mingguan -->
+            <div id="rekap-view" class="view hidden">
+                <div id="global-summary" class="summary-card">
+                    <h3 class="font-bold text-lg mb-2">Ringkasan Global</h3>
+                    <div class="flex justify-between py-1"><span>Total Pemasukan Global:</span> <span id="global-income" class="income-color font-semibold">Rp 0</span></div>
+                    <div class="flex justify-between py-1"><span>Total Pengeluaran Global:</span> <span id="global-expense" class="expense-color font-semibold">Rp 0</span></div>
+                    <div class="flex justify-between py-2 border-t mt-2"><span>Saldo Bersih Global:</span> <span id="global-net-balance" class="font-bold">Rp 0</span></div>
+                </div>
+                
+                <h3 class="view-title mt-4">Rekap Bulanan</h3>
+                <div id="monthly-recap-list">
+                    <p class="empty-message hidden" id="rekap-empty-message">Belum ada data transaksi untuk direkap.</p>
+                </div>
+
+                <h3 class="view-title mt-4">Rekap Mingguan</h3>
+                <div id="weekly-recap-list">
+                    <!-- Rekap mingguan akan dirender di sini -->
+                </div>
+            </div>
+        </main>
+        
+        <!-- MODAL (Untuk Tambah/Edit Entri) - Transaksi/Jurnal -->
+        <div id="input-modal" class="modal-backdrop hidden" onclick="if(event.target.id === 'input-modal') hideModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <h3 id="modal-title-entry">Tambah Entri Baru</h3>
+                
+                <select id="entry-type" onchange="toggleForm()" disabled>
+                    <option value="jurnal">📝 Jurnal Hidup</option>
+                    <option value="income">💰 Pemasukan</option>
+                    <option value="expense">💸 Pengeluaran</option>
+                </select>
+
+                <!-- Hidden Input untuk menyimpan ID entri yang diedit -->
+                <input type="hidden" id="entry-id-to-edit"> 
+
+                <!-- Form untuk Jurnal -->
+                <div id="jurnal-form" class="form-section">
+                    <input type="text" id="jurnal-caption" placeholder="Caption/Judul Postingan">
+                    <textarea id="jurnal-body" placeholder="Apa yang terjadi hari ini? Detail dan perasaan Anda..."></textarea>
+                </div>
+
+                <!-- Form untuk Uang (Pemasukan/Pengeluaran) -->
+                <div id="money-form" class="form-section hidden">
+                    <input type="number" id="money-amount" placeholder="Jumlah (contoh: 50000)" required>
+                    <input type="text" id="money-description" placeholder="Deskripsi/Sumber/Kegunaan" required>
+                    <input type="date" id="money-date" required>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="cancel-btn" onclick="hideModal()">Batal</button>
+                    <button class="save-btn" onclick="saveEntry()">Simpan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW MODAL (Untuk Tambah/Edit Tujuan Tabungan) -->
+        <div id="saving-modal" class="modal-backdrop hidden" onclick="if(event.target.id === 'saving-modal') hideSavingModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <h3 id="modal-title-saving">Tambah Tujuan Tabungan</h3>
+                
+                <!-- Hidden Input untuk menyimpan ID tabungan yang diedit -->
+                <input type="hidden" id="saving-id-to-edit"> 
+
+                <input type="text" id="saving-name" placeholder="Nama Tujuan (misal: Beli Motor Baru)" required>
+                <input type="number" id="saving-target-amount" placeholder="Target Jumlah (misal: 15000000)" required>
+                <input type="number" id="saving-current-amount" placeholder="Jumlah Saat Ini (misal: 1000000)" required>
+
+                <div class="modal-actions">
+                    <button class="cancel-btn" onclick="hideSavingModal()">Batal</button>
+                    <button class="save-btn" onclick="saveSavingGoal()">Simpan Tujuan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inisialisasi data dari Local Storage
+        let journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        // NEW: Inisialisasi data tabungan
+        let savingGoals = JSON.parse(localStorage.getItem('savingGoals')) || []; 
+
+        const JURNAL_TYPE = 'jurnal';
+        const INCOME_TYPE = 'income';
+        const EXPENSE_TYPE = 'expense';
+        
+        // NEW: Placeholder waktu Sholat (hanya sebagai contoh, tidak akurat secara geografis)
+        const PRAYER_TIMES = [
+            { name: "Subuh", time: "05:00" },
+            { name: "Dzuhur", time: "12:00" },
+            { name: "Ashar", time: "15:30" },
+            { name: "Maghrib", time: "18:00" },
+            { name: "Isya", time: "19:30" }
+        ];
+        const LAST_REMINDER_KEY = 'lastPrayerReminderCheck'; // Kunci Local Storage untuk menyimpan waktu sholat terakhir yang dicek
+
+        // --- UTILITY FUNCTIONS ---
+
+        /** Mengubah angka menjadi format Rupiah */
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(number);
+        };
+
+        /** Mengubah format tanggal menjadi DD MMMM YYYY */
+        const formatDate = (dateString) => {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const date = dateString ? new Date(dateString) : new Date();
+            return date.toLocaleDateString('id-ID', options);
+        };
+        
+        /** Mengubah format tanggal menjadi Bulan dan Tahun (MMMM YYYY) */
+        const formatMonthYear = (dateString) => {
+            const options = { month: 'long', year: 'numeric' };
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', options);
+        };
+        
+        /** Mendapatkan tanggal awal minggu (Hari Minggu) untuk kunci pengelompokan */
+        const getStartOfWeek = (dateString) => {
+            const date = new Date(dateString + "T00:00:00");
+            const day = date.getDay(); // 0 (Minggu) hingga 6 (Sabtu)
+            // Kurangi hari ini dengan jumlah hari sejak Minggu
+            const diff = date.getDate() - day; 
+            const startOfWeek = new Date(date.setDate(diff));
+            
+            // Format sebagai YYYY-MM-DD
+            return startOfWeek.toISOString().substring(0, 10);
+        };
+
+        /** Menghasilkan ID unik */
+        const generateId = () => {
+            return Date.now().toString(36) + Math.random().toString(36).substring(2);
+        };
+        
+        // --- NOTIFICATION AND REMINDER FUNCTIONS ---
+
+        /** Meminta izin notifikasi dari browser */
+        const requestNotificationPermission = () => {
+            const statusElement = document.getElementById('notification-status');
+            
+            if (!("Notification" in window)) {
+                if(statusElement) statusElement.innerHTML = `<span class="font-bold expense-color">Browser ini tidak mendukung notifikasi desktop.</span>`;
+                return;
+            }
+            
+            if (Notification.permission === "granted") {
+                if(statusElement) statusElement.innerHTML = `<span class="font-bold income-color">🔔 Status Notifikasi: Aktif.</span>`;
+                return;
+            }
+
+            if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        if(statusElement) statusElement.innerHTML = `<span class="font-bold income-color">🔔 Status Notifikasi: Aktif.</span>`;
+                        new Notification("Life Tracker: Notifikasi Aktif!", {
+                            body: "Kami akan mengingatkan Anda untuk mengisi jurnal di jam sholat.",
+                        });
+                        checkAndTriggerPrayerReminder(); // Cek langsung setelah izin
+                    } else {
+                        if(statusElement) statusElement.innerHTML = `<span class="font-bold expense-color">🔔 Status Notifikasi: Ditolak.</span> Klik untuk coba lagi.`;
+                    }
+                });
+            } else {
+                if(statusElement) statusElement.innerHTML = `<span class="font-bold expense-color">🔔 Status Notifikasi: Ditolak.</span> Izinkan di pengaturan browser Anda.`;
+            }
+        };
+
+        /** Mengecek waktu sholat terakhir dan memicu notifikasi jika jurnal belum diisi */
+        const checkAndTriggerPrayerReminder = () => {
+            const statusElement = document.getElementById('notification-status');
+            
+            // Perbarui status notifikasi di UI
+            if (statusElement) {
+                if (!("Notification" in window)) {
+                    statusElement.innerHTML = `<span class="font-bold expense-color">Browser tidak mendukung notifikasi.</span>`;
+                    return;
+                } else if (Notification.permission === "denied") {
+                    statusElement.innerHTML = `<span class="font-bold expense-color">🔔 Status Notifikasi: Ditolak.</span> Izinkan di pengaturan browser Anda.`;
+                    return;
+                } else if (Notification.permission === "granted") {
+                    statusElement.innerHTML = `<span class="font-bold income-color">🔔 Status Notifikasi: Aktif.</span> Mencari waktu jurnal...`;
+                }
+            }
+            
+            // Hanya lanjutkan jika izin diberikan
+            if (Notification.permission !== "granted") {
+                return;
+            }
+
+            const now = new Date();
+            const todayDateString = now.toISOString().substring(0, 10); // YYYY-MM-DD
+            const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+
+            // 1. Cari Waktu Sholat Terakhir yang sudah lewat hari ini
+            let lastPrayerName = "Subuh"; // Default
+            let lastPrayerKey = "";
+            let foundPrayerTime = false;
+
+            // Urutkan waktu sholat (asc)
+            const sortedPrayerTimes = [...PRAYER_TIMES].sort((a, b) => {
+                const [hA, mA] = a.time.split(':').map(Number);
+                const [hB, mB] = b.time.split(':').map(Number);
+                return (hA * 60 + mA) - (hB * 60 + mB);
+            });
+            
+            // Loop mundur untuk menemukan waktu sholat terakhir yang lewat
+            for (let i = sortedPrayerTimes.length - 1; i >= 0; i--) {
+                const prayer = sortedPrayerTimes[i];
+                const [h, m] = prayer.time.split(':').map(Number);
+                const prayerTimeMinutes = h * 60 + m;
+
+                // Cek jika waktu sekarang melewati waktu sholat + 15 menit (margin)
+                if (currentTimeMinutes >= prayerTimeMinutes + 15) {
+                    lastPrayerName = prayer.name;
+                    foundPrayerTime = true;
+                    break;
+                }
+            }
+            
+            // Jika waktu sebelum subuh (tidak ada waktu sholat yang lewat hari ini), kita gunakan Isya' kemarin
+            if (!foundPrayerTime && currentTimeMinutes < 300) { // Jika sebelum jam 5 pagi
+                const isya = PRAYER_TIMES.find(p => p.name === "Isya");
+                if (isya) lastPrayerName = `Isya' (Kemarin)`;
+            }
+
+
+            // 2. Tentukan Kunci Pengecekan
+            const currentPrayerCheckKey = `${todayDateString}-${lastPrayerName}`;
+            const lastReminderCheck = localStorage.getItem(LAST_REMINDER_KEY);
+            
+            // 3. Tentukan Tanggal Jurnal Terakhir (Tidak digunakan untuk memicu notifikasi)
+            // Notifikasi dipicu hanya berdasarkan waktu sholat, agar selalu mengingatkan
+
+            // 4. Periksa apakah notifikasi harus dipicu
+
+            // Jika Kunci Pengecekan (misal: 2025-11-22-Dzuhur) belum sama dengan yang terakhir disimpan.
+            if (lastReminderCheck !== currentPrayerCheckKey) {
+                
+                // Trigger Notifikasi
+                new Notification(`Waktunya Jurnal Harian (${lastPrayerName})!`, {
+                    body: "Ayo catat apa yang Anda syukuri atau yang terjadi hari ini.",
+                    tag: "daily-journal-prayer-time"
+                });
+
+                // Simpan kunci agar tidak ditampilkan lagi sampai waktu sholat berikutnya
+                localStorage.setItem(LAST_REMINDER_KEY, currentPrayerCheckKey);
+            }
+            
+            // Perbarui status di UI
+            if (statusElement) {
+                statusElement.innerHTML = `<span class="font-bold income-color">🔔 Aktif.</span> Cek Terakhir: ${lastPrayerName}`;
+            }
+        };
+
+        // --- LOCAL STORAGE & DATA HANDLING ---
+
+        /** Menyimpan semua data ke Local Storage */
+        const saveData = () => {
+            localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('savingGoals', JSON.stringify(savingGoals)); 
+        };
+
+        /** Memuat dan merender semua data */
+        const loadAllData = () => {
+            renderJournalEntries();
+            renderTransactions(INCOME_TYPE);
+            renderTransactions(EXPENSE_TYPE);
+            updateSummary(); 
+            renderMonthlySummary(); 
+            renderWeeklySummary(); 
+            renderSavingGoals(); 
+            // Cek notifikasi saat memuat data (penting)
+            checkAndTriggerPrayerReminder(); 
+        };
+
+        // --- RENDER FUNCTIONS (JURNAL) ---
+
+        /** Merender entri Jurnal ke UI */
+        const renderJournalEntries = () => {
+            const listElement = document.getElementById('jurnal-list');
+            const emptyMessage = document.getElementById('jurnal-empty-message'); 
+
+            listElement.innerHTML = ''; 
+            
+            // Urutkan berdasarkan tanggal terbaru
+            const sortedEntries = [...journalEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (!emptyMessage) {
+                console.warn("Jurnal empty message element not found.");
+                return; 
+            }
+
+            if (sortedEntries.length === 0) {
+                emptyMessage.classList.remove('hidden');
+                return;
+            }
+            emptyMessage.classList.add('hidden');
+
+            sortedEntries.forEach(entry => {
+                const post = document.createElement('div');
+                post.className = 'journal-post';
+                post.innerHTML = `
+                    <div class="post-header">
+                        <span class="username">${entry.caption}</span>
+                        <div class="action-buttons">
+                            <span class="post-date">${formatDate(entry.date)}</span>
+                            <button class="edit-btn" onclick="editEntry('${entry.id}', '${JURNAL_TYPE}')">✏️</button>
+                            <button class="delete-btn" onclick="deleteEntry('${entry.id}', '${JURNAL_TYPE}')">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-body">${entry.body}</p>
+                    </div>
+                `;
+                listElement.appendChild(post);
+            });
+        };
+        
+        // --- RENDER FUNCTIONS (TRANSACTIONS) ---
+
+        /** Merender transaksi (Pemasukan atau Pengeluaran) ke UI */
+        const renderTransactions = (type) => {
+            const listElementId = type === INCOME_TYPE ? 'income-list' : 'expense-list';
+            const emptyMessageId = type === INCOME_TYPE ? 'income-empty-message' : 'expense-empty-message';
+
+            const listElement = document.getElementById(listElementId);
+            const emptyMessage = document.getElementById(emptyMessageId);
+            
+            listElement.innerHTML = ''; 
+
+            const filteredTransactions = transactions.filter(t => t.type === type);
+            // Urutkan berdasarkan tanggal terbaru
+            const sortedTransactions = [...filteredTransactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (!emptyMessage) {
+                console.warn(`${type} empty message element not found.`);
+                return; 
+            }
+
+            if (sortedTransactions.length === 0) {
+                emptyMessage.classList.remove('hidden');
+                return;
+            }
+            emptyMessage.classList.add('hidden');
+
+
+            sortedTransactions.forEach(t => {
+                const listItem = document.createElement('li');
+                listItem.className = 'transaction-item';
+
+                const amountClass = type === INCOME_TYPE ? 'income-color' : 'expense-color';
+                const sign = type === INCOME_TYPE ? '+' : '-';
+
+                listItem.innerHTML = `
+                    <div class="transaction-details">
+                        <span class="transaction-description">${t.description}</span>
+                        <span class="transaction-date-tiny">${formatDate(t.date)}</span>
+                    </div>
+                    <div class="action-buttons">
+                        <span class="transaction-amount ${amountClass}">${sign} ${formatRupiah(t.amount)}</span>
+                        <button class="edit-btn" onclick="editEntry('${t.id}', '${type}')">✏️</button>
+                        <button class="delete-btn" onclick="deleteEntry('${t.id}', '${type}')">🗑️</button>
+                    </div>
+                `;
+                listElement.appendChild(listItem);
+            });
+        };
+        
+        /** Memperbarui total ringkasan Pemasukan dan Pengeluaran di view masing-masing dan Global */
+        const updateSummary = () => {
+            const totalIncome = transactions
+                .filter(t => t.type === INCOME_TYPE)
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalExpense = transactions
+                .filter(t => t.type === EXPENSE_TYPE)
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            // Ringkasan di tab Pemasukan/Pengeluaran
+            document.getElementById('total-income').textContent = formatRupiah(totalIncome);
+            document.getElementById('total-expense').textContent = formatRupiah(totalExpense);
+
+            // Ringkasan Global di tab Rekap
+            document.getElementById('global-income').textContent = formatRupiah(totalIncome);
+            document.getElementById('global-expense').textContent = formatRupiah(totalExpense);
+            
+            const netBalance = totalIncome - totalExpense;
+            const netBalanceElement = document.getElementById('global-net-balance');
+            netBalanceElement.textContent = formatRupiah(netBalance);
+            netBalanceElement.className = netBalance >= 0 ? 'income-color font-bold' : 'expense-color font-bold';
+        };
+
+        // --- REKAP FUNCTIONS ---
+
+        /** Menghitung ringkasan Pemasukan dan Pengeluaran berdasarkan bulan */
+        const calculateMonthlySummary = () => {
+            const summary = {};
+
+            transactions.forEach(t => {
+                // Key: YYYY-MM
+                const date = new Date(t.date + "T00:00:00"); 
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1; 
+                const key = `${year}-${String(month).padStart(2, '0')}`;
+                
+                if (!summary[key]) {
+                    summary[key] = { income: 0, expense: 0, date: t.date };
+                }
+
+                if (t.type === INCOME_TYPE) {
+                    summary[key].income += t.amount;
+                } else if (t.type === EXPENSE_TYPE) {
+                    summary[key].expense += t.amount;
+                }
+            });
+
+            // Mengubah objek menjadi array dan mengurutkan dari bulan terbaru
+            const sortedSummary = Object.keys(summary)
+                .map(key => ({ monthKey: key, ...summary[key] }))
+                .sort((a, b) => b.monthKey.localeCompare(a.monthKey));
+                
+            return sortedSummary;
+        };
+
+        /** Merender ringkasan bulanan ke UI */
+        const renderMonthlySummary = () => {
+            const monthlySummary = calculateMonthlySummary();
+            const listElement = document.getElementById('monthly-recap-list');
+            const emptyMessage = document.getElementById('rekap-empty-message');
+
+            listElement.innerHTML = '';
+            
+            if (monthlySummary.length === 0) {
+                if (transactions.length === 0) {
+                     emptyMessage.classList.remove('hidden');
+                }
+                return;
+            }
+            emptyMessage.classList.add('hidden');
+
+            monthlySummary.forEach(monthData => {
+                const monthYearString = formatMonthYear(monthData.date);
+                const balance = monthData.income - monthData.expense;
+                const balanceClass = balance >= 0 ? 'recap-balance' : 'recap-balance negative';
+                
+                const group = document.createElement('div');
+                group.className = 'recap-group';
+                group.innerHTML = `
+                    <div class="recap-header">Bulan: ${monthYearString}</div>
+                    <div class="recap-detail-item">
+                        <span>Pemasukan:</span>
+                        <span class="income-color font-semibold">${formatRupiah(monthData.income)}</span>
+                    </div>
+                    <div class="recap-detail-item">
+                        <span>Pengeluaran:</span>
+                        <span class="expense-color font-semibold">${formatRupiah(monthData.expense)}</span>
+                    </div>
+                    <div class="${balanceClass} recap-detail-item">
+                        <span>Saldo Bersih:</span>
+                        <span>${formatRupiah(balance)}</span>
+                    </div>
+                `;
+                listElement.appendChild(group);
+            });
+        };
+
+        /** Menghitung ringkasan Pemasukan dan Pengeluaran berdasarkan minggu */
+        const calculateWeeklySummary = () => {
+            const summary = {};
+
+            transactions.forEach(t => {
+                // Key: YYYY-MM-DD dari hari Minggu
+                const key = getStartOfWeek(t.date); 
+                
+                if (!summary[key]) {
+                    summary[key] = { income: 0, expense: 0, date: key };
+                }
+
+                if (t.type === INCOME_TYPE) {
+                    summary[key].income += t.amount;
+                } else if (t.type === EXPENSE_TYPE) {
+                    summary[key].expense += t.amount;
+                }
+            });
+
+            // Mengubah objek menjadi array dan mengurutkan dari minggu terbaru
+            const sortedSummary = Object.keys(summary)
+                .map(key => ({ weekKey: key, ...summary[key] }))
+                .sort((a, b) => b.weekKey.localeCompare(a.weekKey));
+                
+            return sortedSummary;
+        };
+        
+        /** Merender ringkasan mingguan ke UI */
+        const renderWeeklySummary = () => {
+            const weeklySummary = calculateWeeklySummary();
+            const listElement = document.getElementById('weekly-recap-list');
+
+            listElement.innerHTML = '';
+            
+            if (weeklySummary.length === 0) {
+                return;
+            }
+
+            weeklySummary.forEach(weekData => {
+                const startDate = new Date(weekData.date + "T00:00:00");
+                
+                // Hitung tanggal akhir minggu (Sabtu)
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6);
+
+                const weekString = `${formatDate(startDate.toISOString().substring(0, 10))} - ${formatDate(endDate.toISOString().substring(0, 10))}`;
+                
+                const balance = weekData.income - weekData.expense;
+                const balanceClass = balance >= 0 ? 'recap-balance' : 'recap-balance negative';
+                
+                const group = document.createElement('div');
+                group.className = 'recap-group';
+                group.innerHTML = `
+                    <div class="recap-header weekly">Minggu: ${weekString}</div>
+                    <div class="recap-detail-item">
+                        <span>Pemasukan:</span>
+                        <span class="income-color font-semibold">${formatRupiah(weekData.income)}</span>
+                    </div>
+                    <div class="recap-detail-item">
+                        <span>Pengeluaran:</span>
+                        <span class="expense-color font-semibold">${formatRupiah(weekData.expense)}</span>
+                    </div>
+                    <div class="${balanceClass} recap-detail-item">
+                        <span>Saldo Bersih:</span>
+                        <span>${formatRupiah(balance)}</span>
+                    </div>
+                `;
+                listElement.appendChild(group);
+            });
+        };
+
+        // --- TABUNGAN FUNCTIONS (NEW) ---
+
+        /** Merender tujuan tabungan ke UI */
+        const renderSavingGoals = () => {
+            const listElement = document.getElementById('goals-list');
+            const emptyMessage = document.getElementById('goals-empty-message');
+
+            listElement.innerHTML = '';
+            
+            if (!emptyMessage) {
+                console.warn("Goals empty message element not found.");
+                return;
+            }
+
+            if (savingGoals.length === 0) {
+                emptyMessage.classList.remove('hidden');
+                return;
+            }
+            emptyMessage.classList.add('hidden');
+
+            savingGoals.forEach(goal => {
+                const progress = (goal.currentAmount / goal.targetAmount) * 100;
+                const progressPercentage = Math.min(progress, 100).toFixed(0);
+                const remaining = goal.targetAmount - goal.currentAmount;
+                const isComplete = remaining <= 0;
+                
+                const card = document.createElement('div');
+                card.className = 'goal-card';
+                card.innerHTML = `
+                    <div class="goal-card-content">
+                        <div class="goal-title">
+                            <span>${goal.name} ${isComplete ? ' (✅ Tercapai!)' : ''}</span>
+                            <div class="goal-actions">
+                                <button class="goal-edit-btn" onclick="editSavingGoal('${goal.id}')">✏️</button>
+                                <button class="goal-delete-btn" onclick="deleteSavingGoal('${goal.id}')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="goal-target">Target: ${formatRupiah(goal.targetAmount)}</div>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercentage}%; background-color: ${isComplete ? 'var(--accent-green)' : 'var(--accent-blue)'};"></div>
+                        </div>
+
+                        <div class="progress-text">
+                            <span class="${isComplete ? 'income-color' : ''}">Terkumpul: ${formatRupiah(goal.currentAmount)}</span>
+                            <span class="${remaining > 0 ? 'expense-color' : 'income-color'}">
+                                ${isComplete ? 'Sisa: Rp 0' : 'Sisa Kebutuhan: ' + formatRupiah(remaining)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                listElement.appendChild(card);
+            });
+        };
+
+        /** Menghapus tujuan tabungan */
+        const deleteSavingGoal = (id) => {
+            if (confirm("Anda yakin ingin menghapus tujuan tabungan ini?")) {
+                savingGoals = savingGoals.filter(g => g.id !== id);
+                saveData();
+                loadAllData();
+            }
+        };
+
+        // --- MODAL & INTERAKSI TRANSAKSI/JURNAL (EDIT AND ADD) ---
+
+        /** Menampilkan Modal Input (Jurnal/Transaksi) */
+        const showModal = (id = null) => {
+            const isEditing = id !== null;
+            
+            // Reset state ID edit
+            document.getElementById('entry-id-to-edit').value = id || '';
+            document.getElementById('modal-title-entry').textContent = isEditing ? 'Edit Entri' : 'Tambah Entri Baru';
+            document.getElementById('entry-type').disabled = isEditing; // Nonaktifkan ganti tipe saat edit
+            
+            // Reset form
+            document.getElementById('entry-type').value = JURNAL_TYPE;
+            document.getElementById('jurnal-caption').value = '';
+            document.getElementById('jurnal-body').value = '';
+            document.getElementById('money-amount').value = '';
+            document.getElementById('money-description').value = '';
+            document.getElementById('money-date').value = new Date().toISOString().substring(0, 10); 
+            
+            if (isEditing) {
+                const entry = journalEntries.find(e => e.id === id) || transactions.find(t => t.id === id);
+                if (entry) {
+                    document.getElementById('entry-type').value = entry.type;
+                    
+                    if (entry.type === JURNAL_TYPE) {
+                        document.getElementById('jurnal-caption').value = entry.caption;
+                        document.getElementById('jurnal-body').value = entry.body;
+                    } else {
+                        document.getElementById('money-amount').value = entry.amount;
+                        document.getElementById('money-description').value = entry.description;
+                        document.getElementById('money-date').value = entry.date;
+                    }
+                }
+            }
+
+            toggleForm(); 
+            document.getElementById('input-modal').classList.remove('hidden');
+        };
+
+        /** Fungsi Wrapper untuk memulai edit */
+        const editEntry = (id, type) => {
+            showModal(id);
+        };
+
+        /** Menyembunyikan Modal Input (Jurnal/Transaksi) */
+        const hideModal = () => {
+            document.getElementById('input-modal').classList.add('hidden');
+        };
+
+        /** Mengubah tampilan form antara Jurnal dan Uang */
+        const toggleForm = () => {
+            const type = document.getElementById('entry-type').value;
+            const jurnalForm = document.getElementById('jurnal-form');
+            const moneyForm = document.getElementById('money-form');
+
+            if (type === JURNAL_TYPE) {
+                jurnalForm.classList.remove('hidden');
+                moneyForm.classList.add('hidden');
+            } else {
+                jurnalForm.classList.add('hidden');
+                moneyForm.classList.remove('hidden');
+            }
+        };
+
+        /** Menyimpan atau Mengedit entri baru berdasarkan tipe */
+        const saveEntry = () => {
+            const idToEdit = document.getElementById('entry-id-to-edit').value;
+            const type = document.getElementById('entry-type').value;
+
+            if (type === JURNAL_TYPE) {
+                const caption = document.getElementById('jurnal-caption').value.trim();
+                const body = document.getElementById('jurnal-body').value.trim();
+
+                if (!caption || !body) {
+                    console.error('Jurnal: Caption dan body tidak boleh kosong.');
+                    return;
+                }
+                
+                if (idToEdit) {
+                    // EDIT JURNAL
+                    const index = journalEntries.findIndex(e => e.id === idToEdit);
+                    if (index !== -1) {
+                        journalEntries[index].caption = caption;
+                        journalEntries[index].body = body;
+                        // Tanggal tidak diubah saat edit
+                    }
+                } else {
+                    // TAMBAH BARU JURNAL
+                    journalEntries.push({
+                        id: generateId(),
+                        type: JURNAL_TYPE,
+                        caption: caption,
+                        body: body,
+                        date: new Date().toISOString().substring(0, 10) 
+                    });
+                }
+
+            } else { // INCOME_TYPE atau EXPENSE_TYPE
+                const amount = parseInt(document.getElementById('money-amount').value);
+                const description = document.getElementById('money-description').value.trim();
+                const date = document.getElementById('money-date').value;
+
+                if (isNaN(amount) || amount <= 0 || !description || !date) {
+                    console.error('Transaksi: Data tidak valid. Mohon isi Jumlah (>0), Deskripsi, dan Tanggal Transaksi.');
+                    return;
+                }
+
+                if (idToEdit) {
+                    // EDIT TRANSAKSI
+                    const index = transactions.findIndex(t => t.id === idToEdit);
+                    if (index !== -1) {
+                        transactions[index].amount = amount;
+                        transactions[index].description = description;
+                        transactions[index].date = date;
+                    }
+                } else {
+                    // TAMBAH BARU TRANSAKSI
+                    transactions.push({
+                        id: generateId(),
+                        type: type,
+                        amount: amount,
+                        description: description,
+                        date: date
+                    });
+                }
+            }
+
+            saveData();
+            loadAllData();
+            hideModal();
+        };
+        
+        /** Menghapus entri berdasarkan ID dan Tipe */
+        const deleteEntry = (id, type) => {
+            if (confirm(`Anda yakin ingin menghapus entri ini?`)) {
+                if (type === JURNAL_TYPE) {
+                    journalEntries = journalEntries.filter(e => e.id !== id);
+                } else {
+                    transactions = transactions.filter(t => t.id !== id);
+                }
+                
+                saveData();
+                loadAllData();
+            }
+        };
+
+        // --- MODAL & INTERAKSI TABUNGAN (EDIT AND ADD) ---
+
+        /** Menampilkan Modal Input Tabungan */
+        const showSavingModal = (id = null) => {
+            const isEditing = id !== null;
+
+            // Reset state ID edit
+            document.getElementById('saving-id-to-edit').value = id || '';
+            document.getElementById('modal-title-saving').textContent = isEditing ? 'Edit Tujuan Tabungan' : 'Tambah Tujuan Tabungan';
+
+            // Reset form tabungan
+            document.getElementById('saving-name').value = '';
+            document.getElementById('saving-target-amount').value = '';
+            document.getElementById('saving-current-amount').value = 0;
+            
+            if (isEditing) {
+                const goal = savingGoals.find(g => g.id === id);
+                if (goal) {
+                    document.getElementById('saving-name').value = goal.name;
+                    document.getElementById('saving-target-amount').value = goal.targetAmount;
+                    document.getElementById('saving-current-amount').value = goal.currentAmount;
+                }
+            }
+
+            document.getElementById('saving-modal').classList.remove('hidden');
+        };
+
+        /** Fungsi Wrapper untuk memulai edit tabungan */
+        const editSavingGoal = (id) => {
+            showSavingModal(id);
+        };
+
+        /** Menyembunyikan Modal Input Tabungan */
+        const hideSavingModal = () => {
+            document.getElementById('saving-modal').classList.add('hidden');
+        };
+
+        /** Menyimpan atau Mengedit tujuan tabungan baru */
+        const saveSavingGoal = () => {
+            const idToEdit = document.getElementById('saving-id-to-edit').value;
+            const name = document.getElementById('saving-name').value.trim();
+            const targetAmount = parseInt(document.getElementById('saving-target-amount').value);
+            const currentAmount = parseInt(document.getElementById('saving-current-amount').value) || 0;
+            
+            if (!name || isNaN(targetAmount) || targetAmount <= 0) {
+                console.error('Tabungan: Nama tujuan dan target jumlah harus diisi dengan benar.');
+                return;
+            }
+
+            if (idToEdit) {
+                // EDIT TABUNGAN
+                const index = savingGoals.findIndex(g => g.id === idToEdit);
+                if (index !== -1) {
+                    savingGoals[index].name = name;
+                    savingGoals[index].targetAmount = targetAmount;
+                    savingGoals[index].currentAmount = currentAmount;
+                }
+            } else {
+                // TAMBAH BARU TABUNGAN
+                savingGoals.push({
+                    id: generateId(),
+                    name: name,
+                    targetAmount: targetAmount,
+                    currentAmount: currentAmount,
+                });
+            }
+
+            saveData();
+            loadAllData();
+            hideSavingModal();
+        };
+
+        // --- VIEW NAVIGATION ---
+
+        /** Mengganti tampilan (Jurnal, Pemasukan, Pengeluaran, Tabungan, Rekap) */
+        const switchView = (targetViewId) => {
+            // Hapus 'active' dari semua tab
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Sembunyikan semua view
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.add('hidden');
+            });
+
+            // Tampilkan view yang dituju dan aktifkan tab
+            document.getElementById(`${targetViewId}-view`).classList.remove('hidden');
+            document.querySelector(`.nav-item[data-view="${targetViewId}"]`).classList.add('active');
+
+            // Khusus untuk Rekap dan Tabungan, pastikan data di-refresh saat dibuka
+            if (targetViewId === 'rekap' || targetViewId === 'tabungan') {
+                loadAllData();
+            }
+            
+            // Khusus untuk Jurnal, jalankan cek notifikasi
+            if (targetViewId === 'jurnal') {
+                checkAndTriggerPrayerReminder();
+            }
+        };
+
+        // Event listener untuk tombol navigasi
+        document.querySelectorAll('.nav-item').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const view = event.target.getAttribute('data-view');
+                switchView(view);
+            });
+        });
+
+        // --- INITIALIZATION ---
+        
+        // Muat data saat halaman dimuat
+        window.onload = () => {
+            loadAllData();
+            // Default view ke Jurnal
+            switchView('jurnal'); 
+        };
+
+    </script>
+
+</body>
+</html>
